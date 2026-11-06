@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "canonical_file": "theme-3351920114810663100 (2) (15).xml",
+  "byte_length": 391267,
+  "sha256": "e7d8034ad7af3bbdfced737ba75b3bd3ad2efa5f457326fa05d9e861455b4da4",
+  "git_blob_sha1": "6826a09292ac3882efde09f63de0d06d1257f0c6",
+  "verification": [
+    "byte_length",
+    "sha256",
+    "git_blob_sha1",
+    "xml_well_formedness"
+  ],
+  "note": "Single canonical XML copy remains at repository root; this manifest does not authorize production upload."
+}
