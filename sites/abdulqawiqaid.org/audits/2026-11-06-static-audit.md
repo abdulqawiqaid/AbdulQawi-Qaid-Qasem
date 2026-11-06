@@ -89,12 +89,13 @@ The theme includes Blogger's `google-analytics` include, but the static source s
 
 ## 4. CI and repository controls
 
-- The feature branch's `.github` directory contains only `pull_request_template.md`; no Actions workflow file was found.
-- The reviewed commit has no associated workflow runs and no reported commit statuses. CI is therefore **not configured/evidenced**, not passing.
-- Branch-protection settings could not be read: GitHub returned `403 Resource not accessible by integration`. This is an access limitation, not proof that protection is absent.
+- Added `.github/workflows/validate-blogger-theme.yml` to parse the archived XML and verify its SHA-256 on pull requests and feature-branch pushes.
+- GitHub Actions run `42230026224` completed successfully; its XML/checksum validation job concluded `success`.
+- The `main` branch metadata reports `protected: false` and protection `enabled: false`. A separate branch-protection read returned `403 Resource not accessible by integration`.
+- The available GitHub connector exposes branch-protection reads but no branch-protection mutation action. Therefore, although protection was requested, I could not enable it from this session. This is an outstanding repository safeguard, not a completed action.
 - The pull request remains open and draft. No merge has occurred.
 
-**Recommended next repository step:** add a CI workflow on the feature branch to validate XML well-formedness, detect accidental changes to the immutable original archive, scan for unsafe sinks and external hosts, and run repository hygiene checks. CI should report findings without auto-rewriting the original theme.
+**Next repository step:** enable main-branch protection in GitHub repository settings: require pull requests, require at least one approval (or the strongest available review rule), require the successful 'Validate original Blogger XML and checksum' check, dismiss stale approvals, and block force pushes/deletions. The current connector cannot change this setting. Extend CI later with non-mutating security and repository-hygiene scans; never auto-rewrite the original theme.
 
 ## 5. Scope, limitations, and next actions
 
