@@ -1,0 +1,67 @@
+name: Validate Blogger theme archive
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "theme-3351920114810663100 (2) (15).xml"
+      - "sites/abdulqawiqaid.org/blogger-theme/**"
+      - ".github/workflows/validate-blogger-theme.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blogger-theme-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Verify canonical theme archive
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify checksum, Git blob identity, and XML
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import sys
+          import xml.etree.ElementTree as ET
+
+          manifest_path = pathlib.Path("sites/abdulqawiqaid.org/blogger-theme/manifest.json")
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          theme_path = pathlib.Path(manifest["canonical_file"])
+          data = theme_path.read_bytes()
+
+          actual_size = len(data)
+          actual_sha256 = hashlib.sha256(data).hexdigest()
+          git_blob = hashlib.sha1(
+              b"blob " + str(actual_size).encode("ascii") + b"\0" + data
+          ).hexdigest()
+
+          expected = {
+              "byte_length": manifest["byte_length"],
+              "sha256": manifest["sha256"],
+              "git_blob_sha1": manifest["git_blob_sha1"],
+          }
+          actual = {
+              "byte_length": actual_size,
+              "sha256": actual_sha256,
+              "git_blob_sha1": git_blob,
+          }
+
+          for key, expected_value in expected.items():
+              if actual[key] != expected_value:
+                  print(f"FAIL {key}: expected {expected_value}, got {actual[key]}")
+                  sys.exit(1)
+              print(f"PASS {key}: {actual[key]}")
+
+          ET.fromstring(data)
+          print("PASS XML is well-formed")
+          PY
